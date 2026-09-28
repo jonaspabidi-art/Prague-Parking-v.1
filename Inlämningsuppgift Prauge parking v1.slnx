@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path="LOGGBOK.md" />
+    <File Path="README.md" />
   </Folder>
   <Project Path="Inlämningsuppgift Prauge parking v1/Inlämningsuppgift Prauge parking v1.csproj" />
 </Solution>
