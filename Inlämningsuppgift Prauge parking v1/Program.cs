@@ -254,4 +254,141 @@ static string LäsRegnr()
     return LäsText("Registreringsnummer: ").ToUpper();
 }
 
+//  Sökmetoder, frågar inte användaren utan tar emot parametrar
+
+// Returnerar platsens index, eller -1 om fordonet inte finns
+static int HittaFordon(string[] parkingGarage, string regnr)
+{
+    for (int i = 0; i < parkingGarage.Length; i++)
+    {
+        if (parkingGarage[i] == "")
+        {
+            continue;
+        }
+
+        string[] fordonPåPlatsen = parkingGarage[i].Split(FordonSkiljare);
+
+        foreach (string fordon in fordonPåPlatsen)
+        {
+            DelaUppFordon(fordon, out string typ, out string regnrPåPlatsen);
+
+            // == istället för Contains, annars hittar "ABC" även "ABC123"
+            if (regnrPåPlatsen == regnr)
+            {
+                return i;
+            }
+        }
+    }
+
+    return -1;
+}
+
+// Returnerar index för en ledig plats, eller -1 om det är fullt
+static int HittaLedigPlats(string[] parkingGarage, string fordonstyp)
+{
+    // En MC ställs helst bredvid en ensam MC för att spara platser
+    if (fordonstyp == MC)
+    {
+        for (int i = 0; i < parkingGarage.Length; i++)
+        {
+            if (ÄrEnsamMc(parkingGarage[i]))
+            {
+                return i;
+            }
+        }
+    }
+
+    for (int i = 0; i < parkingGarage.Length; i++)
+    {
+        if (parkingGarage[i] == "")
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+static bool FinnsPlatsFör(string[] parkingGarage, int platsIndex, string fordonstyp)
+{
+    if (parkingGarage[platsIndex] == "")
+    {
+        return true;
+    }
+
+    // På en upptagen plats får bara en MC plats, bredvid en ensam MC
+    if (fordonstyp == MC)
+    {
+        return ÄrEnsamMc(parkingGarage[platsIndex]);
+    }
+
+    return false;
+}
+
+static bool ÄrEnsamMc(string plats)
+{
+    var ärEnsam = plats.StartsWith(MC + TypSkiljare) && !plats.Contains(FordonSkiljare);
+    return ärEnsam;
+}
+
+
+//  Metoder som ändrar i arrayen
+
+static void LäggTillPåPlats(string[] parkingGarage, int platsIndex, string fordon)
+{
+    if (parkingGarage[platsIndex] == "")
+    {
+        parkingGarage[platsIndex] = fordon;
+    }
+    else
+    {
+        // Andra MC:n på platsen: "MC#AAA" + "MC#BBB" -> "MC#AAA|MC#BBB"
+        parkingGarage[platsIndex] = string.Join(FordonSkiljare, parkingGarage[platsIndex], fordon);
+    }
+}
+
+// Tar bort fordonet och returnerar det, t.ex. "MC#KLM789"
+static string TaBortFrånPlats(string[] parkingGarage, int platsIndex, string regnr)
+{
+    string[] fordonPåPlatsen = parkingGarage[platsIndex].Split(FordonSkiljare);
+
+    var borttaget = "";
+    var kvar = "";
+
+    foreach (string fordon in fordonPåPlatsen)
+    {
+        DelaUppFordon(fordon, out string typ, out string regnrPåPlatsen);
+
+        if (regnrPåPlatsen == regnr)
+        {
+            borttaget = fordon;
+        }
+        else
+        {
+            kvar = fordon;
+        }
+    }
+
+    parkingGarage[platsIndex] = kvar;
+
+    return borttaget;
+}
+
+
+//  Hjälpmetoder för lagringsformatet
+
+// "CAR" + "ABC123" -> "CAR#ABC123"
+static string SkapaFordon(string fordonstyp, string regnr)
+{
+    return string.Join(TypSkiljare, fordonstyp, regnr);
+}
+
+// "CAR#ABC123" -> "CAR" och "ABC123"
+// out används eftersom metoden behöver lämna tillbaka två värden
+static void DelaUppFordon(string fordon, out string fordonstyp, out string regnr)
+{
+    string[] delar = fordon.Split(TypSkiljare);
+    fordonstyp = delar[0];
+    regnr = delar[1];
+}
 
