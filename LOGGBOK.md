@@ -94,7 +94,7 @@ Det är bättre att samla återkommande kod i en egen metod
 - Söka med små bokstäver. Fordonet hittades ändå.
 - Flytta en bil till en plats med en MC. Det nekades och bilen stod kvar.
 - Hämta ut en av två MC. Den andra stod kvar.
-[Skriv om något test inte fungerade och hur du löste det.]
+- Alla tester fungerade som de skulle.
 
 **Status:**
 Prague Parking 1.0 är klar.
